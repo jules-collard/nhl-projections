@@ -49,14 +49,19 @@ calculate_rates <- function(data) {
 }
 
 get_mult_skater_seasons <- function(start_season, end_season, colwise=TRUE, rates=TRUE) {
+  require(dplyr)
   mult_seasons_data <- get_skater_seasons(end_season, rates=rates)
   n_seasons <- end_season - start_season + 1
   if (n_seasons > 1) {  
     for (i in 1:(n_seasons-1)) {
-      temp <- get_skater_season(end_season - i, rates=rates)
+      temp <- get_skater_seasons(end_season - i, rates=rates)
       Sys.sleep(0.5)
-      mult_seasons_data <- mult_seasons_data %>%
-        left_join(temp, by = "name", suffix = c("", paste(".n-", i, sep = "")))
+      if (colwise) {
+        mult_seasons_data <- mult_seasons_data %>%
+          left_join(temp, by = "name", suffix = c("", paste(".n-", i, sep = "")))
+      } else {
+        mult_seasons_data <- rbind(mult_seasons_data, temp)
+      }
     }
   }
   return(mult_seasons_data)
